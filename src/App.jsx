@@ -2,11 +2,11 @@ import { useEffect, useState } from 'react'
 import './App.css'
 
 function App() {
-  const [server, useServer] = useState([]);
+  const [server, setServer] = useState([]);
   useEffect(() => {
     fetch("http://localhost:5000/users")
       .then(res => res.json())
-      .then(data => useServer(data))
+      .then(data => setServer(data))
   }, [])
 
 
@@ -15,15 +15,22 @@ function App() {
     const from = e.target;
     const name = from.name.value;
     const email = from.email.value;
-    const user = { name, email }
-    console.log(user);
+    const users = { name, email }
+    console.log(users);
     fetch("http://localhost:5000/users", {
       method: "POST",
       headers: {
-        'constent-type': 'application/json'
+        'content-type': 'application/json'
       },
-      body: JSON.stringify(user)
+      body: JSON.stringify(users)
     })
+      .then(res => res.json())
+      .then(data => {
+        console.log(data)
+        const newUser = [...server, data];
+        setServer(newUser);
+        from.reset();
+      })
   }
   return (
     <>
@@ -34,7 +41,7 @@ function App() {
         <input type="text" name="email" id="" /><br />
         <button>submit</button>
       </form>
-      <div>{server.map(user => <p key={user.id}>{user.name}</p>)}</div>
+      <div>{server.map(user => <p key={user.id}>{user.id}: {user.name} : {user.email}</p>)}</div>
     </>
   )
 }
